@@ -1,37 +1,39 @@
 using System;
 using System.Diagnostics;
 
+
 class Checker
-{
-    static bool batteryIsOk(float temperature, float soc, float chargeRate) {
-        if(temperature < 0 || temperature > 45) {
-            Console.WriteLine("Temperature is out of range!");
-            return false;
-        } else if(soc < 20 || soc > 80) {
-            Console.WriteLine("State of Charge is out of range!");
-            return false;
-        } else if(chargeRate > 0.8) {
-            Console.WriteLine("Charge Rate is out of range!");
+{ 
+
+    public static bool rangeCheck(float min,float max, float target,string errorMsg)
+    {
+        if((min > target)&&(max<= target))
+        {
+            Console.WriteLine("{0} is out of range", errorMsg);
             return false;
         }
-        return true;
+        else
+        {
+            return true;
+        }
     }
 
-    static void ExpectTrue(bool expression) {
-        if(!expression) {
-            Console.WriteLine("Expected true, but got false");
-            Environment.Exit(1);
-        }
+    public static void Expect(bool Expectation)
+    {
+        Console.WriteLine("Expected {0}, but got {1}", !Expectation, Expectation);
     }
-    static void ExpectFalse(bool expression) {
-        if(expression) {
-            Console.WriteLine("Expected false, but got true");
-            Environment.Exit(1);
-        }
+
+    static bool batteryIsOk(float temperature, float soc, float chargeRate,Func<float, float, float, string, bool> range) 
+    {
+        return range(0, 45,temperature,"Temperature") &&
+               range(20, 80, soc, "State of Charge") &&
+               range(0, 0.8f, chargeRate, "Charge Rate");
     }
+
     static int Main() {
-        ExpectTrue(batteryIsOk(25, 70, 0.7f));
-        ExpectFalse(batteryIsOk(50, 85, 0.0f));
+        Func<float, float, float, string, bool> range = rangeCheck;
+        Expect(batteryIsOk(25, 70, 0.7f,range));
+        Expect(batteryIsOk(50, 85, 0.0f,range));
         Console.WriteLine("All ok");
         return 0;
     }
